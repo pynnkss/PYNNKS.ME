@@ -1,0 +1,40 @@
+.globe {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.globe canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Filled face — centered, sits BEHIND hero text (z-index 10) */
+.faceWrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Stroke-only face — centered, sits ABOVE hero text (z-index 10).
+   Only the outline shows where face and text overlap. */
+.faceStrokeWrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg {
+  width: clamp(400px, 64vmin, 740px);
+  height: clamp(400px, 64vmin, 740px);
+}

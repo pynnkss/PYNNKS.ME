@@ -1,0 +1,67 @@
+.dot,
+.ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  background: #1eff1a;
+  box-shadow: 0 0 6px #1eff1a;
+  mix-blend-mode: screen;
+}
+
+.ring {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid rgba(30, 255, 26, 0.6);
+  box-shadow: 0 0 8px rgba(30, 255, 26, 0.3);
+  mix-blend-mode: screen;
+}
+
+/* ── Trail nodes ─────────────────────────────────────── */
+.trailNode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #1eff1a;
+  mix-blend-mode: screen;
+  /* Size shrinks from 4px → 1px; opacity fades from 0.5 → 0 */
+  width:   calc(4px  - (var(--i) / var(--n)) * 3px);
+  height:  calc(4px  - (var(--i) / var(--n)) * 3px);
+  opacity: calc(0.50 - (var(--i) / var(--n)) * 0.50);
+  box-shadow: 0 0 calc(6px - (var(--i) / var(--n)) * 5px) rgba(30, 255, 26, 0.6);
+}
+
+/* ── Click burst: ring explodes outward ──────────────── */
+@keyframes ringBurst {
+  0%   { width: 28px;  height: 28px;  opacity: 0.9; border-width: 1.5px; }
+  40%  { width: 68px;  height: 68px;  opacity: 0.6; border-width: 1px;   }
+  100% { width: 92px;  height: 92px;  opacity: 0;   border-width: 0.5px; }
+}
+
+.burst {
+  animation: ringBurst 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* ── Click burst: dot flares bright then snaps back ──── */
+@keyframes dotFlash {
+  0%   { width: 5px;  height: 5px;  box-shadow: 0 0 6px #1eff1a; }
+  18%  { width: 11px; height: 11px; box-shadow: 0 0 18px #1eff1a, 0 0 40px rgba(30,255,26,0.5); }
+  55%  { width: 6px;  height: 6px;  box-shadow: 0 0 10px #1eff1a; }
+  100% { width: 5px;  height: 5px;  box-shadow: 0 0 6px #1eff1a; }
+}
+
+.dotFlash {
+  animation: dotFlash 0.38s ease-out forwards;
+}

@@ -1,0 +1,137 @@
+/* ── Container: positions the whole widget ─────────────── */
+.container {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  pointer-events: auto;
+}
+
+/* ── Slide-in panel with slider ────────────────────────── */
+.panel {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity    0.22s ease;
+  border: 1px solid transparent;
+  border-right: none;
+  padding: 0;
+  background: transparent;
+}
+
+.container.open .panel {
+  max-width: 160px;
+  opacity: 1;
+  border-color: rgba(30, 255, 26, 0.2);
+  padding: 0 10px 0 12px;
+  background: rgba(4, 4, 2, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+/* ── Volume number readout ─────────────────────────────── */
+.volLabel {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  color: rgba(30, 255, 26, 0.5);
+  min-width: 24px;
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+
+/* ── Range slider ──────────────────────────────────────── */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 88px;
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    rgba(30, 255, 26, 0.75) 0%,
+    rgba(30, 255, 26, 0.75) calc(var(--vol, 0.4) * 100%),
+    rgba(30, 255, 26, 0.12) calc(var(--vol, 0.4) * 100%),
+    rgba(30, 255, 26, 0.12) 100%
+  );
+  border-radius: 0;
+  outline: none;
+  cursor: none;
+  flex-shrink: 0;
+}
+
+/* Thumb — rectangular to match brand aesthetic */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 0;
+  box-shadow: 0 0 6px rgba(30, 255, 26, 0.7);
+  cursor: none;
+}
+
+.slider::-moz-range-thumb {
+  width: 2px;
+  height: 14px;
+  background: var(--accent);
+  border: none;
+  border-radius: 0;
+  box-shadow: 0 0 6px rgba(30, 255, 26, 0.7);
+  cursor: none;
+}
+
+/* ── Icon button ───────────────────────────────────────── */
+.btn {
+  background: transparent;
+  border: 1px solid rgba(30, 255, 26, 0.2);
+  padding: 10px 14px;
+  cursor: none;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.2s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.btn:hover {
+  border-color: rgba(30, 255, 26, 0.5);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Equalizer bars ────────────────────────────────────── */
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.bar {
+  width: 3px;
+  background: var(--accent);
+  animation: eq 0.5s ease-in-out infinite alternate;
+}
+
+.bar:nth-child(1) { animation-duration: 0.38s; animation-delay: 0s;    }
+.bar:nth-child(2) { animation-duration: 0.58s; animation-delay: 0.09s; }
+.bar:nth-child(3) { animation-duration: 0.44s; animation-delay: 0.19s; }
+.bar:nth-child(4) { animation-duration: 0.50s; animation-delay: 0.04s; }
+
+@keyframes eq {
+  from { height: 4px;  opacity: 0.4; }
+  to   { height: 18px; opacity: 1;   }
+}
+
+.muted .bar {
+  animation-play-state: paused;
+  height: 4px !important;
+  opacity: 0.2;
+}

@@ -1,0 +1,16 @@
+.orb {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 15;
+  pointer-events: auto;
+  cursor: none;
+  will-change: transform;
+  /* Initial offset applied via GSAP */
+}
+
+.svg {
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(212, 168, 85, 0.3));
+  transform-origin: center;
+}

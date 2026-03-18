@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:superevilgeniuscorp.com)",
-      "WebFetch(domain:cdn.prod.website-files.com)",
-      "Bash(npm run:*)"
-    ]
-  }
-}

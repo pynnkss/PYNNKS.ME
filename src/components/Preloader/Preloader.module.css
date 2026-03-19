@@ -1,0 +1,44 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  transform-origin: center center;
+}
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 1.1vw, 13px);
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-align: left;
+  min-width: 320px;
+}
+
+.line {
+  white-space: pre;
+  min-height: 1.4em;
+}
+
+.progress {
+  font-family: var(--font-ui);
+  font-size: clamp(9px, 1.1vw, 13px);
+  color: var(--accent);
+  letter-spacing: 0;
+  display: flex;
+  gap: 0;
+}
+
+.block {
+  display: inline-block;
+  width: 1ch;
+  text-align: center;
+}

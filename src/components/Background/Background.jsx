@@ -1,14 +1,27 @@
 import { useEffect, useRef } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import styles from './Background.module.css';
 
 const SCALE = 0.15;
 const NOISE = 0.04;
 const LERP = 0.03;
 
+const NOISE_BASES = {
+  dark:  { r: 4,   g: 4,   b: 2   },
+  light: { r: 230, g: 226, b: 218 },
+};
+
 export default function Background() {
   const canvasRef = useRef(null);
   const mouseRef = useRef({ tx: 0, ty: 0, cx: 0, cy: 0 });
   const bandYRef = useRef(0);
+  const noiseBaseRef = useRef(NOISE_BASES.dark);
+  const { theme } = useTheme();
+
+  // Update noise base using hardcoded values — avoids CSS var timing issues
+  useEffect(() => {
+    noiseBaseRef.current = NOISE_BASES[theme] || NOISE_BASES.dark;
+  }, [theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,28 +62,45 @@ export default function Background() {
       const offX = Math.round(m.cx * 3);
       const offY = Math.round(m.cy * 2);
 
+      const { r: baseR, g: baseG, b: baseB } = noiseBaseRef.current;
+      const isLight = baseR > 128;
+
       for (let y = 0; y < rh; y++) {
         for (let x = 0; x < rw; x++) {
           const sx = (x + offX + rw) % rw;
           const sy = (y + offY + rh) % rh;
           const i = (sy * rw + sx) * 4;
 
-          let r = 0x04;
-          let g = 0x04;
-          let b = 0x02;
+          let r = baseR;
+          let g = baseG;
+          let b = baseB;
 
           if (Math.random() < NOISE) {
             const v = Math.random() * 38;
-            r = Math.min(255, r + Math.round(v * 0.10));
-            g = Math.min(255, g + Math.round(v));
-            b = Math.min(255, b + Math.round(v * 0.08));
+            if (isLight) {
+              // Light mode: warm gray noise (subtract from bright base)
+              r = Math.max(0, r - Math.round(v * 0.3));
+              g = Math.max(0, g - Math.round(v * 0.35));
+              b = Math.max(0, b - Math.round(v * 0.25));
+            } else {
+              // Dark mode: green-tinted noise
+              r = Math.min(255, r + Math.round(v * 0.10));
+              g = Math.min(255, g + Math.round(v));
+              b = Math.min(255, b + Math.round(v * 0.08));
+            }
           }
 
           // Tracking band brightness boost
           const dy = ((y - bandTop) + rh) % rh;
           if (dy < bandH) {
             const boost = Math.round((1 - dy / bandH) * 12);
-            g = Math.min(255, g + boost);
+            if (isLight) {
+              r = Math.max(0, r - boost);
+              g = Math.max(0, g - boost);
+              b = Math.max(0, b - boost);
+            } else {
+              g = Math.min(255, g + boost);
+            }
           }
 
           data[i]     = r;

@@ -12,17 +12,29 @@
 .dot {
   width: 5px;
   height: 5px;
-  background: #1eff1a;
-  box-shadow: 0 0 6px #1eff1a;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
   mix-blend-mode: screen;
 }
 
 .ring {
   width: 28px;
   height: 28px;
-  border: 1.5px solid rgba(30, 255, 26, 0.6);
-  box-shadow: 0 0 8px rgba(30, 255, 26, 0.3);
+  border: 1.5px solid rgba(var(--accent-rgb), 0.6);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.3);
   mix-blend-mode: screen;
+}
+
+:global([data-theme="light"]) .dot {
+  mix-blend-mode: normal;
+  background: #1a1a18;
+  box-shadow: 0 0 6px rgba(26, 26, 24, 0.5);
+}
+
+:global([data-theme="light"]) .ring {
+  mix-blend-mode: normal;
+  border-color: rgba(26, 26, 24, 0.6);
+  box-shadow: 0 0 8px rgba(26, 26, 24, 0.2);
 }
 
 /* ── Trail nodes ─────────────────────────────────────── */
@@ -34,13 +46,19 @@
   z-index: 9998;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #1eff1a;
+  background: var(--accent);
   mix-blend-mode: screen;
   /* Size shrinks from 4px → 1px; opacity fades from 0.5 → 0 */
   width:   calc(4px  - (var(--i) / var(--n)) * 3px);
   height:  calc(4px  - (var(--i) / var(--n)) * 3px);
   opacity: calc(0.50 - (var(--i) / var(--n)) * 0.50);
-  box-shadow: 0 0 calc(6px - (var(--i) / var(--n)) * 5px) rgba(30, 255, 26, 0.6);
+  box-shadow: 0 0 calc(6px - (var(--i) / var(--n)) * 5px) rgba(var(--accent-rgb), 0.6);
+}
+
+:global([data-theme="light"]) .trailNode {
+  mix-blend-mode: normal;
+  background: #1a1a18;
+  box-shadow: 0 0 calc(6px - (var(--i) / var(--n)) * 5px) rgba(26, 26, 24, 0.4);
 }
 
 /* ── Click burst: ring explodes outward ──────────────── */
@@ -56,10 +74,10 @@
 
 /* ── Click burst: dot flares bright then snaps back ──── */
 @keyframes dotFlash {
-  0%   { width: 5px;  height: 5px;  box-shadow: 0 0 6px #1eff1a; }
-  18%  { width: 11px; height: 11px; box-shadow: 0 0 18px #1eff1a, 0 0 40px rgba(30,255,26,0.5); }
-  55%  { width: 6px;  height: 6px;  box-shadow: 0 0 10px #1eff1a; }
-  100% { width: 5px;  height: 5px;  box-shadow: 0 0 6px #1eff1a; }
+  0%   { width: 5px;  height: 5px;  box-shadow: 0 0 6px var(--accent); }
+  18%  { width: 11px; height: 11px; box-shadow: 0 0 18px var(--accent), 0 0 40px rgba(var(--accent-rgb),0.5); }
+  55%  { width: 6px;  height: 6px;  box-shadow: 0 0 10px var(--accent); }
+  100% { width: 5px;  height: 5px;  box-shadow: 0 0 6px var(--accent); }
 }
 
 .dotFlash {

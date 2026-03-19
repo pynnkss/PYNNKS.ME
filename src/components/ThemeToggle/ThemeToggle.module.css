@@ -1,0 +1,31 @@
+.btn {
+  position: fixed;
+  top: 28px;
+  left: 28px;
+  z-index: 100;
+  background: transparent;
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  padding: 10px 14px;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(var(--accent-rgb), 0.5);
+  cursor: none;
+  pointer-events: auto;
+  transition: border-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  color: var(--accent);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+:global([data-theme="light"]) .btn {
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.7);
+}

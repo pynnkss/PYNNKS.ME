@@ -20,29 +20,47 @@
   display: flex;
   gap: 0;
   line-height: 1;
-  border-top: 1px solid rgba(30, 255, 26, 0.14);
+  border-top: 1px solid rgba(var(--accent-rgb), 0.14);
   padding-top: 10px;
 }
 
 .letter {
   font-family: var(--font-body);
   font-size: clamp(62px, 13vw, 170px);
-  color: #f0ede6;
+  color: var(--hero-text);
   font-weight: 400;
   letter-spacing: -0.02em;
   will-change: transform, opacity, filter, color;
   pointer-events: auto;
   display: inline-block;
   transform-origin: center center;
-  filter: drop-shadow(0 2px 16px rgba(30, 255, 26, 0.10));
+  filter: drop-shadow(0 2px 16px rgba(var(--accent-rgb), 0.10));
 }
 
 .tagline {
+  display: flex;
+  gap: 0;
   font-family: var(--font-ui);
-  font-size: clamp(7px, 0.82vw, 10px);
+  font-size: clamp(10px, 1.4vw, 16px);
   letter-spacing: 0.38em;
   text-transform: uppercase;
-  color: rgba(240, 237, 230, 0.4);
-  border-left: 1px solid rgba(240, 237, 230, 0.18);
+  color: var(--accent);
+  border-left: 1px solid rgba(var(--accent-rgb), 0.3);
   padding-left: 10px;
+  filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.25));
+}
+
+.tagLetter {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+  animation: tagGlitch 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.7s);
+}
+
+@keyframes tagGlitch {
+  0%, 92%, 100% { opacity: 1; transform: none; filter: none; }
+  93% { opacity: 0.6; transform: translateX(-2px) skewX(-8deg); filter: blur(1px); }
+  94% { opacity: 1; transform: translateX(1px) skewX(4deg); filter: none; }
+  95% { opacity: 0.4; transform: translateX(-1px); filter: blur(2px); }
+  96% { opacity: 1; transform: none; filter: none; }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
+import { useTheme } from '../../context/ThemeContext';
 import styles from './Face.module.css';
 
 // Exact path data from superevilgeniuscorp.com (viewBox 0 0 539 554)
@@ -27,6 +28,22 @@ const P = {
     'm311.5,155.05c.09,1.08.18,2.16.28,3.25,5.51,58.15,30.05,103.4,54.81,101.06s40.35-51.38,34.84-109.54c-1.42-15.02-4.12-29.17-7.75-41.86-22.16,22.63-50.44,39.22-82.18,47.1Z',
 };
 
+// Hardcoded theme color palettes — uses hex to match Three.js sRGB handling
+const THEME_COLORS = {
+  dark: {
+    wire:   0xffffff,   // white
+    ghost:  0x1eff1a,   // neon green
+    flight: 0x1eff1a,
+    wireOpacity: 0.13,
+  },
+  light: {
+    wire:   0x000000,   // black
+    ghost:  0x0a7a08,   // dark green
+    flight: 0x0a7a08,
+    wireOpacity: 0.22,
+  },
+};
+
 export default function Face() {
   const globeRef       = useRef(null);
   const faceRef        = useRef(null);
@@ -36,9 +53,44 @@ export default function Face() {
   const happyStrokeRef = useRef(null);
   const evilStrokeRef  = useRef(null);
   const isHappyRef     = useRef(true);
+  const { theme }      = useTheme();
+  const themeRef       = useRef(theme);
+
+  // Keep themeRef in sync
+  useEffect(() => { themeRef.current = theme; }, [theme]);
+
+  // Store Three.js materials in refs for theme updates
+  const wireMatRef  = useRef(null);
+  const neonMatRef  = useRef(null);
+  const cityMatRef  = useRef(null);
+  const arcMatsRef  = useRef([]);
+  const pMatsRef    = useRef([]);
+  const baseWireOpacityRef = useRef(0.13);
+
+  // Update Three.js material colors when theme changes — using hex values
+  useEffect(() => {
+    const palette = THEME_COLORS[theme] || THEME_COLORS.dark;
+
+    if (wireMatRef.current) {
+      wireMatRef.current.color.setHex(palette.wire);
+    }
+    baseWireOpacityRef.current = palette.wireOpacity;
+    if (neonMatRef.current) {
+      neonMatRef.current.color.setHex(palette.ghost);
+    }
+    if (cityMatRef.current) {
+      cityMatRef.current.color.setHex(palette.flight);
+    }
+    arcMatsRef.current.forEach(m => {
+      m.color.setHex(palette.flight);
+    });
+    pMatsRef.current.forEach(m => {
+      m.color.setHex(palette.flight);
+    });
+  }, [theme]);
 
   useEffect(() => {
-    // ── Three.js: white globe wireframe (static) ─────────────────
+    // ── Three.js: wireframe globe ─────────────────
     const mount = globeRef.current;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -50,25 +102,30 @@ export default function Face() {
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.z = 4.5;
 
-    // ── White wireframe sphere ────────────────────────────────────
+    // ── Wireframe sphere ────────────────────────────────────
+    const initPalette = THEME_COLORS[themeRef.current] || THEME_COLORS.dark;
+
     const wireGeo = new THREE.SphereGeometry(1.5, 24, 18);
     const wireMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: initPalette.wire,
       wireframe: true,
       transparent: true,
-      opacity: 0.13,
+      opacity: initPalette.wireOpacity,
     });
+    wireMatRef.current = wireMat;
+    baseWireOpacityRef.current = initPalette.wireOpacity;
     const wireMesh = new THREE.Mesh(wireGeo, wireMat);
     scene.add(wireMesh);
 
-    // ── Neon ghost sphere — slightly larger, green, counter-rotates ─
+    // ── Neon ghost sphere — slightly larger, counter-rotates ─
     const neonGeo = new THREE.SphereGeometry(1.54, 16, 12);
     const neonMat = new THREE.MeshBasicMaterial({
-      color: 0x1eff1a,
+      color: initPalette.ghost,
       wireframe: true,
       transparent: true,
       opacity: 0,
     });
+    neonMatRef.current = neonMat;
     const neonMesh = new THREE.Mesh(neonGeo, neonMat);
     scene.add(neonMesh);
 
@@ -77,7 +134,6 @@ export default function Face() {
     const NODE_COUNT = 22;
     const PATH_COUNT = 18;
 
-    // Random point on sphere surface
     const randNode = (r) => {
       const u = Math.random(), v = Math.random();
       const theta = 2 * Math.PI * u;
@@ -89,25 +145,26 @@ export default function Face() {
       );
     };
 
-    // Group rotates in sync with wireMesh — paths stay locked to globe
     const flightGroup = new THREE.Group();
     scene.add(flightGroup);
 
     const nodes = Array.from({ length: NODE_COUNT }, () => randNode(SPHERE_R));
 
-    // City dots at each node
     const cityGeo = new THREE.SphereGeometry(0.020, 6, 6);
-    const cityMat = new THREE.MeshBasicMaterial({ color: 0x1eff1a, transparent: true, opacity: 0.65 });
+    const cityMat = new THREE.MeshBasicMaterial({ color: initPalette.flight, transparent: true, opacity: 0.65 });
+    cityMatRef.current = cityMat;
     nodes.forEach(pos => {
       const dot = new THREE.Mesh(cityGeo, cityMat);
       dot.position.copy(pos);
       flightGroup.add(dot);
     });
 
-    // Build arcs between random node pairs
     const paths = [];
     const used  = new Set();
     let tries   = 0;
+    const arcMats = [];
+    const particleMats = [];
+
     while (paths.length < PATH_COUNT && tries < 400) {
       tries++;
       const ai = Math.floor(Math.random() * NODE_COUNT);
@@ -118,11 +175,8 @@ export default function Face() {
       used.add(key);
 
       const A = nodes[ai], B = nodes[bi];
-
-      // Skip short connections — only keep long cross-globe arcs
       if (A.distanceTo(B) < SPHERE_R * 0.9) continue;
 
-      // Control point: midpoint pushed outward for the arc bulge
       const ctrl = new THREE.Vector3().addVectors(A, B).multiplyScalar(0.5);
       ctrl.normalize().multiplyScalar(SPHERE_R * (1.22 + Math.random() * 0.18));
 
@@ -131,13 +185,14 @@ export default function Face() {
 
       const arcGeo = new THREE.BufferGeometry().setFromPoints(arcPts);
       const arcMat = new THREE.LineBasicMaterial({
-        color: 0x1eff1a, transparent: true, opacity: 0.28,
+        color: initPalette.flight, transparent: true, opacity: 0.28,
       });
+      arcMats.push(arcMat);
       flightGroup.add(new THREE.Line(arcGeo, arcMat));
 
-      // Traveling particle along this arc
       const pGeo = new THREE.SphereGeometry(0.017, 5, 5);
-      const pMat = new THREE.MeshBasicMaterial({ color: 0x1eff1a, transparent: true, opacity: 0.92 });
+      const pMat = new THREE.MeshBasicMaterial({ color: initPalette.flight, transparent: true, opacity: 0.92 });
+      particleMats.push(pMat);
       const particle = new THREE.Mesh(pGeo, pMat);
       flightGroup.add(particle);
 
@@ -149,15 +204,23 @@ export default function Face() {
       });
     }
 
+    arcMatsRef.current = arcMats;
+    pMatsRef.current = particleMats;
+
     let rafId;
+
     const loop = () => {
       rafId = requestAnimationFrame(loop);
       const t = Date.now() * 0.001;
 
-      wireMesh.rotation.y += 0.0022;
-      wireMesh.rotation.x += 0.0007;
-      wireMat.opacity = 0.08 + Math.sin(t * 1.1) * 0.05;
+      // ── Wireframe sphere rotation ──────────────────
+      wireMesh.rotation.y += 0.0012;
+      wireMesh.rotation.x += 0.0004;
 
+      const baseOpacity = baseWireOpacityRef.current;
+      wireMat.opacity = baseOpacity + Math.sin(t * 1.1) * 0.03;
+
+      // ── Ghost sphere ────────────────
       neonMesh.rotation.y = wireMesh.rotation.y * -0.6;
       neonMesh.rotation.z = t * 0.25;
       neonMat.opacity = 0.015 + Math.abs(Math.sin(t * 0.55 + 1.8)) * 0.055;
@@ -166,7 +229,7 @@ export default function Face() {
       flightGroup.rotation.y = wireMesh.rotation.y;
       flightGroup.rotation.x = wireMesh.rotation.x;
 
-      // Advance particles along their arcs
+      // ── Flight particles ──────────────────
       paths.forEach(p => {
         p.t = (p.t + p.speed) % 1;
         p.particle.position.copy(p.curve.getPoint(p.t));
@@ -177,7 +240,6 @@ export default function Face() {
     loop();
 
     // ── SVG face: 3D tilt + positional follow toward cursor ──────
-    // Both the filled and stroke wrappers move in sync.
     const onMove = (e) => {
       const rx = ((e.clientY / window.innerHeight) - 0.5) * -34;
       const ry = ((e.clientX / window.innerWidth)  - 0.5) *  34;
@@ -243,14 +305,14 @@ export default function Face() {
 
   return (
     <>
-      {/* White globe wireframe — Three.js, z-index 1 */}
+      {/* Globe wireframe — Three.js, z-index 1 */}
       <div ref={globeRef} className={styles.globe} />
 
       {/* Filled face — z-index 2, sits BEHIND hero text (z-index 10) */}
       <div ref={faceRef} className={styles.faceWrapper}>
         <svg
           viewBox="0 0 539 554"
-          fill="#1eff1a"
+          fill="var(--face-fill)"
           xmlns="http://www.w3.org/2000/svg"
           className={styles.svg}
         >
@@ -270,13 +332,12 @@ export default function Face() {
         </svg>
       </div>
 
-      {/* Stroke-only face — z-index 11, sits ABOVE hero text (z-index 10).
-          The filled body is hidden behind text; only this outline shows through. */}
+      {/* Stroke-only face — z-index 11, sits ABOVE hero text (z-index 10) */}
       <div ref={faceStrokeRef} className={styles.faceStrokeWrapper}>
         <svg
           viewBox="0 0 539 554"
           fill="none"
-          stroke="#1eff1a"
+          stroke="var(--face-stroke)"
           strokeWidth="6"
           xmlns="http://www.w3.org/2000/svg"
           className={styles.svg}

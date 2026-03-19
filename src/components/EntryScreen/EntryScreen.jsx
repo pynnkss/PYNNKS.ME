@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useTheme } from '../../context/ThemeContext';
 import styles from './EntryScreen.module.css';
 import { CursorDrivenParticleTypography } from '../21st.dev/CursorDrivenParticleTypography';
 
@@ -9,6 +10,8 @@ export default function EntryScreen({ onEnter }) {
   const particleTextRef = useRef(null);
   const promptRef      = useRef(null);
   const clickedRef     = useRef(false);
+  const { theme }      = useTheme();
+  const particleColor  = theme === 'light' ? 'rgba(10, 122, 8, 0.85)' : 'rgba(30, 255, 26, 0.85)';
 
   // ── Fade in prompt after a short delay ────────────────────────────
   useEffect(() => {
@@ -30,9 +33,10 @@ export default function EntryScreen({ onEnter }) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 4 + Math.random() * 8;
       const size  = 1.5 + Math.random() * 3;
-      const green = Math.floor(140 + Math.random() * 115);
+      const intensity = Math.floor(140 + Math.random() * 115);
       const spreadX = (Math.random() - 0.5) * 400;
       const spreadY = (Math.random() - 0.5) * 200;
+      const isLight = theme === 'light';
       return {
         x: cx + spreadX, y: cy + spreadY,
         vx: Math.cos(angle) * speed,
@@ -40,7 +44,9 @@ export default function EntryScreen({ onEnter }) {
         size,
         alpha: 0.75 + Math.random() * 0.25,
         decay: 0.013 + Math.random() * 0.016,
-        r: Math.floor(green * 0.07), g: green, b: Math.floor(green * 0.05),
+        r: isLight ? Math.floor(intensity * 0.04) : Math.floor(intensity * 0.07),
+        g: isLight ? Math.floor(intensity * 0.48) : intensity,
+        b: isLight ? Math.floor(intensity * 0.03) : Math.floor(intensity * 0.05),
       };
     });
 
@@ -97,7 +103,7 @@ export default function EntryScreen({ onEnter }) {
           text="PYNNKS"
           fontSize={140}
           fontFamily="'Offbit 101', 'Press Start 2P', monospace"
-          color="rgba(30, 255, 26, 0.85)"
+          color={particleColor}
           particleSize={1.8}
           particleDensity={5}
           dispersionStrength={18}

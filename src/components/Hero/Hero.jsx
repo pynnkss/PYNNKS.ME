@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useTheme } from '../../context/ThemeContext';
 import styles from './Hero.module.css';
 
 const LETTERS = 'PYNNKS'.split('');
+const TAG_LETTERS = 'RETARDED'.split('');
 const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@!%&';
 
 export default function Hero() {
   const letterRefs = useRef([]);
+  const tagLetterRefs = useRef([]);
   const taglineRef = useRef(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const letters = letterRefs.current;
@@ -65,13 +69,48 @@ export default function Hero() {
       });
     });
 
-    // Tagline fades up after letters settle
-    gsap.to(taglineRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.9,
-      ease: 'power3.out',
-      delay: 0.1 + LETTERS.length * 0.07 + 0.3,
+    // ── Tagline scramble-decode entrance ──────────────────────────
+    const tagStartBase = 0.1 + LETTERS.length * 0.07 + 0.3;
+    const tagEls = tagLetterRefs.current;
+
+    gsap.set(tagEls, { opacity: 0, y: 10, filter: 'blur(6px)' });
+
+    tagEls.forEach((el, i) => {
+      if (!el) return;
+      const target = TAG_LETTERS[i];
+      const startDelay = tagStartBase + i * 0.04;
+
+      const t2 = setTimeout(() => {
+        let frame = 0;
+        const totalFrames = Math.round((360 / 1000) * FPS);
+
+        const iv2 = setInterval(() => {
+          frame++;
+          if (frame >= totalFrames) {
+            el.textContent = target;
+            clearInterval(iv2);
+          } else {
+            const progress = frame / totalFrames;
+            el.textContent =
+              Math.random() < progress
+                ? target
+                : CHARSET[Math.floor(Math.random() * CHARSET.length)];
+          }
+        }, 1000 / FPS);
+
+        intervals.push(iv2);
+      }, startDelay * 1000);
+
+      intervals.push(t2);
+
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        delay: startDelay,
+        duration: 0.7,
+        ease: 'expo.out',
+      });
     });
 
     return () => intervals.forEach((id) => clearInterval(id));
@@ -90,7 +129,7 @@ export default function Hero() {
       })
       .call(() => {
         el.style.color = 'transparent';
-        el.style.webkitTextStroke = '1.5px #f0ede6';
+        el.style.webkitTextStroke = `1.5px var(--hero-text)`;
       })
       .to(el, {
         scale: 0.88,
@@ -152,7 +191,7 @@ export default function Hero() {
         ease: 'power2.in',
       })
       .call(() => {
-        el.style.color = '#f0ede6';
+        el.style.color = 'var(--hero-text)';
         el.style.webkitTextStroke = '';
       })
       .to(el, {

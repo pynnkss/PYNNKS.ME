@@ -7,14 +7,47 @@
 :root {
   --bg: #040402; /* off-black — never pure #000 */
   --accent: #1eff1a;
+  --accent-rgb: 30, 255, 26;
   --second: #0a7a08;
   --text: #1eff1a;
+  --hero-text: #f0ede6;
+  --hero-text-rgb: 240, 237, 230;
+  --face-fill: #1eff1a;
+  --face-stroke: #1eff1a;
+  --wire-color: 255, 255, 255;
+  --ghost-color: 30, 255, 26;
+  --flight-color: 30, 255, 26;
+  --noise-base-r: 4;
+  --noise-base-g: 4;
+  --noise-base-b: 2;
+  --vignette-color: 4, 4, 2;
+  --scanline-opacity: 0.085;
   /* Offbit 101: solid block — maximum impact on titles */
   --font-heading: 'Offbit 101', 'Offbit Dot White', 'Press Start 2P', monospace;
   /* Offbit Dot White: dotted outline — prompts, taglines */
   --font-body: 'Offbit Dot White', 'Press Start 2P', monospace;
   /* Offbit Dot Black: dotted filled — UI chrome, labels */
   --font-ui: 'Offbit Dot Black', 'Offbit Dot White', 'Press Start 2P', monospace;
+}
+
+[data-theme="light"] {
+  --bg: #f0ede6;
+  --accent: #0a7a08;
+  --accent-rgb: 10, 122, 8;
+  --second: #076605;
+  --text: #0a7a08;
+  --hero-text: #1a1a18;
+  --hero-text-rgb: 26, 26, 24;
+  --face-fill: #0a7a08;
+  --face-stroke: #0a7a08;
+  --wire-color: 0, 0, 0;
+  --ghost-color: 10, 122, 8;
+  --flight-color: 10, 122, 8;
+  --noise-base-r: 230;
+  --noise-base-g: 226;
+  --noise-base-b: 218;
+  --vignette-color: 230, 226, 218;
+  --scanline-opacity: 0.04;
 }
 
 html, body {
@@ -24,6 +57,7 @@ html, body {
   background-color: var(--bg);
   color: var(--text);
   cursor: none;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 #root {
@@ -41,7 +75,7 @@ body::before {
   background: radial-gradient(
     ellipse 72% 72% at 50% 46%,
     transparent 0%,
-    rgba(4, 4, 2, 0.52) 100%
+    rgba(var(--vignette-color), 0.52) 100%
   );
 }
 
@@ -54,8 +88,8 @@ body::after {
   pointer-events: none;
   background: repeating-linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.085) 0px,
-    rgba(0, 0, 0, 0.085) 1px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 0px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 1px,
     transparent 1px,
     transparent 3px
   );

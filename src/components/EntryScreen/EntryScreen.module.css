@@ -1,108 +1,54 @@
-/* Transparent — CRT noise + vignette shows through unobstructed */
+/* Full-screen overlay — transparent so CRT noise shows through */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 20;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
 }
 
-/* Full-screen particle canvas — above overlay, pointer-events none */
-.particles {
+/* Burst particle canvas — click effect, pointer-events none */
+.burstCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 22;
+  pointer-events: none;
+}
+
+/* Particle typography fills the screen */
+.typographyWrap {
   position: fixed;
   inset: 0;
   z-index: 21;
-  pointer-events: none;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
-}
-
-/* Borderless, backgroundless button — purely the text.
-   position: relative + overflow: hidden clip the sweep beam. */
-.btn {
-  position: relative;
-  overflow: hidden;
-  background: none;
-  border: none;
-  padding: 0.1em 0.3em;
-  cursor: pointer;
-  display: flex;
-  gap: 0;
-  perspective: 900px;
-  transition: transform 0.08s ease;
-}
-
-.btn:active {
-  transform: scale(0.97);
-}
-
-/* Perpetual CRT scan beam — horizontal light sweep (SKILL §4, MOTION_INTENSITY 6) */
-.btn::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(30, 255, 26, 0.055) 40%,
-    rgba(30, 255, 26, 0.09) 50%,
-    rgba(30, 255, 26, 0.055) 60%,
-    transparent 100%
-  );
-  animation: sweep 4.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  pointer-events: none;
-}
-
-@keyframes sweep {
-  0%   { left: -120%; }
-  100% { left: 220%;  }
-}
-
-.letter {
-  font-family: var(--font-heading);
-  font-size: clamp(56px, 13vw, 140px);
-  line-height: 1;
-  display: inline-block;
-  padding: 0 0.12em;
-
-  /* Hollow stroke — CRT green */
-  color: transparent;
-  -webkit-text-stroke: 2px var(--accent);
-
-  will-change: transform, opacity, filter;
-  transform-origin: center center;
-
-  /* 3D extrusion via layered text-shadow */
-  text-shadow:
-    3px  3px  0 rgba(30, 255, 26, 0.78),
-    6px  6px  0 rgba(30, 255, 26, 0.52),
-    9px  9px  0 rgba(30, 255, 26, 0.30),
-    12px 12px 0 rgba(30, 255, 26, 0.14),
-    15px 15px 0 rgba(30, 255, 26, 0.05);
-}
-
-/* Blinking cursor prompt */
+/* Blinking cursor prompt — centered below the text */
 .prompt {
-  height: 1em;
+  position: fixed;
+  top: calc(50% + 90px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 21;
+  pointer-events: none;
   display: flex;
   align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.promptText {
+  font-family: var(--font-ui);
+  font-size: clamp(10px, 1.1vw, 13px);
+  color: rgba(30, 255, 26, 0.6);
+  letter-spacing: 0.25em;
 }
 
 .blink {
   font-family: var(--font-ui);
   font-size: clamp(10px, 1.1vw, 13px);
   color: rgba(30, 255, 26, 0.5);
-  letter-spacing: 0.1em;
   animation: blink 1.1s step-end infinite;
 }
 
